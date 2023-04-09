@@ -6,7 +6,7 @@ export default function PhotosUploader({addedPhotos,onChange}) {
   const [photoLink,setPhotoLink] = useState('');
   async function addPhotoByLink(ev) {
     ev.preventDefault();
-    const {data:filename} = await axios.post(`${base_url}/upload/link-upload`, {link: photoLink});
+    const {data:filename} = await axios.post(`${base_url}upload/link-upload`, {link: photoLink});
     onChange(prev => {
       return [...prev, filename];
     });
@@ -20,7 +20,7 @@ export default function PhotosUploader({addedPhotos,onChange}) {
     for (let i = 0; i < files.length; i++) {
       data.append('photos', files[i]);
     }
-    axios.post(`${base_url}/upload/upload-multer`, data, {
+    axios.post(`${base_url}upload/upload-multer`, data, {
       headers: {'Content-type':'multipart/form-data'}
     }).then(response => {
       const {data:filenames} = response;
@@ -43,9 +43,10 @@ export default function PhotosUploader({addedPhotos,onChange}) {
   console.log(addedPhotos)
 
   return (
-    <>
-      <div className="flex gap-2">
+    <div className="w-full">
+      <div className="flex gap-2 w-full">
         <input value={photoLink}
+              className="w-full border border-black py-4 px-4"
                onChange={ev => setPhotoLink(ev.target.value)}
                type="text" placeholder={'Add using a link ....jpg'}/>
         <button onClick={addPhotoByLink} className="bg-gray-200 px-4 rounded-2xl">Add&nbsp;photo</button>
@@ -81,6 +82,6 @@ export default function PhotosUploader({addedPhotos,onChange}) {
           Upload
         </label>
       </div>
-    </>
+    </div>
   );
 }

@@ -14,6 +14,7 @@ import { Select } from "antd";
 import Dropzone from "react-dropzone";
 import { delImg, uploadImg } from "../features/upload/uploadSlice";
 import { createProducts, resetState } from "../features/product/productSlice";
+import PhotosUploader from "../components/PhotosUploader";
 let schema = yup.object().shape({
   title: yup.string().required("Title is Required"),
   description: yup.string().required("Description is Required"),
@@ -222,7 +223,7 @@ const Addproduct = () => {
           <div className="error">
             {formik.touched.quantity && formik.errors.quantity}
           </div>
-          <div className="bg-white border-1 p-5 text-center">
+          {/* <div className="bg-white border-1 p-5 text-center">
             <Dropzone
               onDrop={(acceptedFiles) => dispatch(uploadImg(acceptedFiles))}
             >
@@ -237,6 +238,10 @@ const Addproduct = () => {
                 </section>
               )}
             </Dropzone>
+          </div> */}
+
+          <div className="w-full">
+            <PhotosUploader addedPhotos={images} onChange={setImages}/>
           </div>
           <div className="showimages d-flex flex-wrap gap-3">
             {imgState?.map((i, j) => {
