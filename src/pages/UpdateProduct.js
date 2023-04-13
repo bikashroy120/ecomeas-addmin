@@ -1,7 +1,7 @@
 import { React, useEffect, useState } from "react";
 import CustomInput from "../components/CustomInput";
 import ReactQuill from "react-quill";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import "react-quill/dist/quill.snow.css";
 import { toast } from "react-toastify";
 import * as yup from "yup";
@@ -10,10 +10,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { getBrands } from "../features/brand/brandSlice";
 import { getCategories } from "../features/pcategory/pcategorySlice";
 import { getColors } from "../features/color/colorSlice";
-import { Select } from "antd";
-import Dropzone from "react-dropzone";
-import { delImg, uploadImg } from "../features/upload/uploadSlice";
-import { createProducts, resetState } from "../features/product/productSlice";
+import { delImg } from "../features/upload/uploadSlice";
+import { createProducts, getProduct, resetState } from "../features/product/productSlice";
 import PhotosUploader from "../components/PhotosUploader";
 let schema = yup.object().shape({
   title: yup.string().required("Title is Required"),
@@ -25,9 +23,11 @@ let schema = yup.object().shape({
   quantity: yup.number().required("Quantity is Required"),
 });
 
-const Addproduct = () => {
+const UpdateProduct = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const params = useParams()
+  const {id} = params;
   const [color, setColor] = useState([]);
   const [images, setImages] = useState([]);
   console.log(color);
@@ -35,17 +35,22 @@ const Addproduct = () => {
     dispatch(getBrands());
     dispatch(getCategories());
     dispatch(getColors());
+    dispatch(getProduct(id))
   }, []);
+
 
   const brandState = useSelector((state) => state.brand.brands);
   const catState = useSelector((state) => state.pCategory.pCategories);
   const colorState = useSelector((state) => state.color.colors);
   const imgState = useSelector((state) => state.upload.images);
   const newProduct = useSelector((state) => state.product);
-  const { isSuccess, isError, isLoading, createdProduct } = newProduct;
+  const { isSuccess, isError, isLoading, createdProduct,product } = newProduct;
+
+  console.log(product)
+
   useEffect(() => {
     if (isSuccess && createdProduct) {
-      toast.success("Product Added Successfullly!");
+      toast.success("Product Update Successfullly!");
     }
     if (isError) {
       toast.error("Something Went Wrong!");
@@ -65,6 +70,9 @@ const Addproduct = () => {
       url: i.url,
     });
   });
+
+
+
 
   useEffect(() => {
     formik.values.color = color ? color : " ";
@@ -147,7 +155,6 @@ const Addproduct = () => {
           >
             <option value="">Select Brand</option>
             {brandState.map((i, j) => {
-              console.log(i)
               return (
                 <option key={j} value={i._id}>
                   {i.title}
@@ -267,4 +274,4 @@ const Addproduct = () => {
   );
 };
 
-export default Addproduct;
+export default UpdateProduct;

@@ -51,13 +51,13 @@ const Productlist = () => {
     data1.push({
       key: i + 1,
       title: productState[i].title,
-      brand: productState[i].brand,
-      category: productState[i].category,
+      brand: productState[i].brand.title,
+      category: productState[i].category.title,
       color: productState[i].color,
       price: `${productState[i].price}`,
       action: (
         <div className=" d-flex"> 
-          <Link to="/" className=" fs-3 text-danger">
+          <Link to={`/admin/product/update/${productState[i]._id}`} className=" fs-3 text-danger">
             <BiEdit />
           </Link>
           <Link className="ms-3 fs-3 text-danger" to="/">
