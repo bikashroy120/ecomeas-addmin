@@ -20,10 +20,17 @@ const createProduct = async (product) => {
   return response.data;
 };
 
+const updateProduct = async (productData) => {
+  const response = await axios.patch(`${base_url}product/update/${productData.id}`, productData.product, config);
+
+  return response.data;
+};
+
 const productService = {
   getProducts,
   getProduct,
   createProduct,
+  updateProduct
 };
 
 export default productService;
