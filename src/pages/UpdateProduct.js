@@ -4,24 +4,14 @@ import ReactQuill from "react-quill";
 import { useNavigate, useParams } from "react-router-dom";
 import "react-quill/dist/quill.snow.css";
 import { toast } from "react-toastify";
-import * as yup from "yup";
-import { useFormik } from "formik";
 import { useDispatch, useSelector } from "react-redux";
 import { getBrands } from "../features/brand/brandSlice";
 import { getCategories } from "../features/pcategory/pcategorySlice";
 import { getColors } from "../features/color/colorSlice";
 import { delImg } from "../features/upload/uploadSlice";
-import { createProducts, getProduct, resetState } from "../features/product/productSlice";
+import { createProducts, getProduct, resetState, updateProducts } from "../features/product/productSlice";
 import PhotosUploader from "../components/PhotosUploader";
-let schema = yup.object().shape({
-  title: yup.string().required("Title is Required"),
-  description: yup.string().required("Description is Required"),
-  price: yup.number().required("Price is Required"),
-  brand: yup.string().required("Brand is Required"),
-  category: yup.string().required("Category is Required"),
-  tags: yup.string().required("Tag is Required"),
-  quantity: yup.number().required("Quantity is Required"),
-});
+
 
 const UpdateProduct = () => {
   const dispatch = useDispatch();
@@ -44,62 +34,72 @@ const UpdateProduct = () => {
   const colorState = useSelector((state) => state.color.colors);
   const imgState = useSelector((state) => state.upload.images);
   const newProduct = useSelector((state) => state.product);
-  const { isSuccess, isError, isLoading, createdProduct,product } = newProduct;
+  const { isSuccess, isError, isLoading, updateProduct,product } = newProduct;
 
-  console.log(product)
+  const [title,setTitle]= useState("")
+  const [description,setdescription] = useState("")
+  const [price,setprice] = useState("")
+  const [brand,setbrand] = useState("")
+  const [category,setcategory] = useState("")
+  const [tags,settags]=useState("")
+  const [quantity,setquantity]=useState("")
+
+  console.log(product.images)
 
   useEffect(() => {
-    if (isSuccess && createdProduct) {
+    if (isSuccess && updateProduct) {
       toast.success("Product Update Successfullly!");
     }
     if (isError) {
       toast.error("Something Went Wrong!");
     }
   }, [isSuccess, isError, isLoading]);
-  const coloropt = [];
-  colorState.forEach((i) => {
-    coloropt.push({
-      label: i.title,
-      value: i._id,
-    });
-  });
-  const img = [];
-  imgState.forEach((i) => {
-    img.push({
-      public_id: i.public_id,
-      url: i.url,
-    });
-  });
+  // const coloropt = [];
+  // colorState.forEach((i) => {
+  //   coloropt.push({
+  //     label: i.title,
+  //     value: i._id,
+  //   });
+  // });
+  // const img = [];
+  // imgState.forEach((i) => {
+  //   img.push({
+  //     public_id: i.public_id,
+  //     url: i.url,
+  //   });
+  // });
 
 
+useEffect(()=>{
+    setTitle(product?.title);
+    setdescription(product?.description);
+    setprice(product?.price);
+    setcategory(product?.category?._id);
+    settags(product?.tags);
+    setImages(product.images || [])
+    // setImages(product?.images);
+    setbrand(product?.brand?._id)
+    setquantity(product?.quantity)
+},[product])
 
 
-  useEffect(() => {
-    formik.values.color = color ? color : " ";
-    formik.values.images = img;
-  }, [color, img]);
-  const formik = useFormik({
-    initialValues: {
-      title: "",
-      description: "",
-      price: "",
-      brand: "",
-      category: "",
-      tags: "",
-      quantity: "",
-      images: "",
-    },
-    validationSchema: schema,
-    onSubmit: (values) => {
-      dispatch(createProducts(values));
-      formik.resetForm();
-      setColor(null);
-      setImages([])
-      setTimeout(() => {
-        dispatch(resetState());
-      }, 3000);
-    },
-  });
+  const submitFrom = (e)=>{
+    e.preventDefault();
+    const productData={
+      id:id,
+      product:{
+        title,description,price,brand,category,tags,quantity,images
+      }
+    }
+
+    console.log(productData)
+    dispatch(updateProducts(productData))
+    setTimeout(() => {
+      dispatch(resetState());
+    }, 3000);
+  }
+
+
   const handleColors = (e) => {
     setColor(e);
     console.log(color);
@@ -109,53 +109,43 @@ const UpdateProduct = () => {
       <h3 className="mb-4 title">Add Product</h3>
       <div>
         <form
-          onSubmit={formik.handleSubmit}
+          onSubmit={submitFrom}
           className="d-flex gap-3 flex-column"
         >
           <CustomInput
             type="text"
             label="Enter Product Title"
             name="title"
-            onChng={formik.handleChange("title")}
-            onBlr={formik.handleBlur("title")}
-            val={formik.values.title}
+            onChng={(e)=>setTitle(e.target.value)}
+            val={title}
           />
-          <div className="error">
-            {formik.touched.title && formik.errors.title}
-          </div>
           <div className="">
             <ReactQuill
               theme="snow"
               name="description"
-              onChange={formik.handleChange("description")}
-              value={formik.values.description}
+              onChange={setdescription}
+              value={description}
             />
           </div>
           <div className="error">
-            {formik.touched.description && formik.errors.description}
           </div>
           <CustomInput
             type="number"
             label="Enter Product Price"
             name="price"
-            onChng={formik.handleChange("price")}
-            onBlr={formik.handleBlur("price")}
-            val={formik.values.price}
+            onChng={(e)=>setprice(e.target.value)}
+            val={price}
           />
-          <div className="error">
-            {formik.touched.price && formik.errors.price}
-          </div>
           <select
             name="brand"
-            onChange={formik.handleChange("brand")}
-            onBlur={formik.handleBlur("brand")}
-            value={formik.values.brand}
+            onChange={(e)=>setbrand(e.target.value)}
+            value={brand}
             className="form-control py-3 mb-3"
             id=""
           >
             <option value="">Select Brand</option>
             {brandState.map((i, j) => {
-              return (
+              return (      
                 <option key={j} value={i._id}>
                   {i.title}
                 </option>
@@ -163,13 +153,11 @@ const UpdateProduct = () => {
             })}
           </select>
           <div className="error">
-            {formik.touched.brand && formik.errors.brand}
           </div>
           <select
             name="category"
-            onChange={formik.handleChange("category")}
-            onBlur={formik.handleBlur("category")}
-            value={formik.values.category}
+            onChange={(e)=>setcategory(e.target.value)}
+            value={category}
             className="form-control py-3 mb-3"
             id=""
           >
@@ -182,14 +170,10 @@ const UpdateProduct = () => {
               );
             })}
           </select>
-          <div className="error">
-            {formik.touched.category && formik.errors.category}
-          </div>
           <select
             name="tags"
-            onChange={formik.handleChange("tags")}
-            onBlur={formik.handleBlur("tags")}
-            value={formik.values.tags}
+            onChange={(e)=>settags(e.target.value)}
+            value={tags}
             className="form-control py-3 mb-3"
             id=""
           >
@@ -200,9 +184,6 @@ const UpdateProduct = () => {
             <option value="popular">Popular</option>
             <option value="special">Special</option>
           </select>
-          <div className="error">
-            {formik.touched.tags && formik.errors.tags}
-          </div>
 
           {/* <Select
             mode="multiple"
@@ -213,20 +194,13 @@ const UpdateProduct = () => {
             onChange={(i) => handleColors(i)}
             options={coloropt}
           /> */}
-          <div className="error">
-            {formik.touched.color && formik.errors.color}
-          </div>
           <CustomInput
             type="number"
             label="Enter Product Quantity"
             name="quantity"
-            onChng={formik.handleChange("quantity")}
-            onBlr={formik.handleBlur("quantity")}
-            val={formik.values.quantity}
+            onChng={(e)=>setquantity(e.target.value)}
+            val={quantity}
           />
-          <div className="error">
-            {formik.touched.quantity && formik.errors.quantity}
-          </div>
           {/* <div className="bg-white border-1 p-5 text-center">
             <Dropzone
               onDrop={(acceptedFiles) => dispatch(uploadImg(acceptedFiles))}
